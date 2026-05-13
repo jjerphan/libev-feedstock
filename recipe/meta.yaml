@@ -22,7 +22,7 @@ requirements:
 outputs:
   - name: libev
     script: install.sh  # [unix]
-    script: install.bat  # [win]
+    script: set LIBEV_OUTPUT_INSTALL=1 && call %BUILD_PREFIX%\Library\bin\run_autotools_clang_conda_build.bat build.sh  # [win]
     build:
       run_exports:
         - {{ pin_subpackage('libev', max_pin='x.x') }}
@@ -43,7 +43,7 @@ outputs:
 
   - name: libev-static
     script: install.sh  # [unix]
-    script: install.bat  # [win]
+    script: set LIBEV_OUTPUT_INSTALL=1 && call %BUILD_PREFIX%\Library\bin\run_autotools_clang_conda_build.bat build.sh  # [win]
     requirements:
       build:
         - autotools_clang_conda  # [win]
