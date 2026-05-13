@@ -13,7 +13,6 @@ build:
 
 requirements:
   build:
-    - autotools_clang_conda  # [win]
     - make  # [unix]
     - libtool  # [unix]
     - {{ compiler('c') }}
@@ -46,7 +45,6 @@ outputs:
     script: set LIBEV_OUTPUT_INSTALL=1 && call "%RECIPE_DIR%\bld.bat"  # [win]
     requirements:
       build:
-        - autotools_clang_conda  # [win]
         - libtool  # [unix]
         - make  # [unix]
         - {{ compiler('c') }}
