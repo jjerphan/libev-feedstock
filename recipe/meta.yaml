@@ -10,11 +10,10 @@ source:
 
 build:
   number: 2
-  skip: true  # [win]
 
 requirements:
   build:
-    - libtool
+    - autotools_clang_conda  # [win]
     - make  # [unix]
     - libtool  # [unix]
     - {{ compiler('c') }}
@@ -23,23 +22,32 @@ requirements:
 outputs:
   - name: libev
     script: install.sh  # [unix]
+    script: install.bat  # [win]
     build:
       run_exports:
         - {{ pin_subpackage('libev', max_pin='x.x') }}
     test:
       commands:
         # Check for headers.
-        - test -f "${PREFIX}/include/ev.h"
-        - test -f "${PREFIX}/include/ev++.h"
-        - test ! -f "${PREFIX}/include/event.h"
-        - test ! -f "${PREFIX}/lib/libev.a"
+        - test -f "${PREFIX}/include/ev.h"  # [unix]
+        - test -f "${PREFIX}/include/ev++.h"  # [unix]
+        - test ! -f "${PREFIX}/include/event.h"  # [unix]
+        - test ! -f "${PREFIX}/lib/libev.a"  # [unix]
         - test -f "${PREFIX}/lib/libev${SHLIBEXT}"  # [unix]
+        - if not exist "%LIBRARY_INC%\ev.h" exit 1  # [win]
+        - if not exist "%LIBRARY_INC%\ev++.h" exit 1  # [win]
+        - if exist "%LIBRARY_INC%\event.h" exit 1  # [win]
+        - if exist "%LIBRARY_LIB%\libev_static.lib" exit 1  # [win]
+        - if not exist "%LIBRARY_LIB%\libev.lib" exit 1  # [win]
+        - if not exist "%LIBRARY_BIN%\libev*.dll" exit 1  # [win]
 
   - name: libev-static
     script: install.sh  # [unix]
+    script: install.bat  # [win]
     requirements:
       build:
-        - libtool
+        - autotools_clang_conda  # [win]
+        - libtool  # [unix]
         - make  # [unix]
         - {{ compiler('c') }}
       host:
@@ -48,8 +56,10 @@ outputs:
         - {{ pin_subpackage('libev', exact=True) }}
     test:
       commands:
-        - test ! -f "${PREFIX}/include/event.h"
-        - test -f "${PREFIX}/lib/libev.a"
+        - test ! -f "${PREFIX}/include/event.h"  # [unix]
+        - test -f "${PREFIX}/lib/libev.a"  # [unix]
+        - if exist "%LIBRARY_INC%\event.h" exit 1  # [win]
+        - if not exist "%LIBRARY_LIB%\libev_static.lib" exit 1  # [win]
       host:
         - {{ pin_subpackage('libev', exact=True) }}
       run:
@@ -59,6 +69,8 @@ outputs:
   # Split into a separate package to prevent clobbering libevent
   - name: libev-libevent
     script: install.sh  # [unix]
+    build:
+      skip: true  # [win]
     requirements:
       build:
         - libtool
